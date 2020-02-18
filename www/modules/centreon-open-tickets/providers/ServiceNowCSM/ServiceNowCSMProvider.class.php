@@ -62,12 +62,12 @@ class ServiceNowCSMProvider extends AbstractProvider
                     'Abstract/templates/display_title.ihtml"}'
             ),
             array('Arg' => self::ARG_COMMENTS, 'Value' => '{$body}'),
-            array('Arg' => self::ARG_ASSIGNED_TO, 'Value' => '{$select.servicenow_assigned_to.value}'),
-            array('Arg' => self::ARG_ASSIGNMENT_GROUP, 'Value' => '{$select.servicenow_assignment_group.value}'),
-            array('Arg' => self::ARG_PRIORITY, 'Value' => '{$select.servicenow_priority.value}'),
-            array('Arg' => self::ARG_CONTACT_TYPE, 'Value' => '{$select.servicenow_contact_type.value}'),
-            array('Arg' => self::ARG_MONITORING, 'Value' => '{$select.servicenow_monitoring.value}'),
-            array('Arg' => self::ARG_CASE_TYPE, 'Value' => '{$select.servicenow_case_type.value}'),
+            array('Arg' => self::ARG_ASSIGNED_TO, 'Value' => '{$select.servicenow_assigned_to.id}'),
+            array('Arg' => self::ARG_ASSIGNMENT_GROUP, 'Value' => '{$select.servicenow_assignment_group.id}'),
+            array('Arg' => self::ARG_PRIORITY, 'Value' => '{$select.servicenow_priority.id}'),
+            array('Arg' => self::ARG_CONTACT_TYPE, 'Value' => '{$select.servicenow_contact_type.id}'),
+            array('Arg' => self::ARG_MONITORING, 'Value' => '{$select.servicenow_monitoring.id}'),
+            array('Arg' => self::ARG_CASE_TYPE, 'Value' => '{$select.servicenow_case_type.id}'),
         );
     }
 
@@ -86,14 +86,14 @@ class ServiceNowCSMProvider extends AbstractProvider
                 'Id' => 'servicenow_monitoring',
                 'Label' => _('Monitoring'),
                 'Type' => self::SERVICENOW_LIST_MONITORING,
-                'Filter' => '',
+                'Filter' => '.*Centreon.*',
                 'Mandatory' => true
             ),
             array(
                 'Id' => 'servicenow_case_type',
                 'Label' => _('Case type'),
                 'Type' => self::SERVICENOW_LIST_CASE_TYPE,
-                'Filter' => '',
+                'Filter' => '.*Alert.*',
                 'Mandatory' => true
             ),
             array(
@@ -107,14 +107,14 @@ class ServiceNowCSMProvider extends AbstractProvider
                 'Id' => 'servicenow_contact_type',
                 'Label' => _('Channel'),
                 'Type' => self::SERVICENOW_LIST_CONTACT_TYPE,
-                'Filter' => '',
+                'Filter' => '.*Monitoring.*',
                 'Mandatory' => true
             ),
             array(
                 'Id' => 'servicenow_assignment_group',
                 'Label' => _('Assignment group'),
                 'Type' => self::SERVICENOW_LIST_ASSIGNMENT_GROUP,
-                'Filter' => '',
+                'Filter' => '.*CS - T1 Support.*',
                 'Mandatory' => ''
             ),
             array(
@@ -199,6 +199,7 @@ class ServiceNowCSMProvider extends AbstractProvider
         '<option value="' . self::ARG_ASSIGNED_TO . '">' . _('Assigned To') . '</options>' .
         '<option value="' . self::ARG_ASSIGNMENT_GROUP . '">' . _('Assignment Group') . '</options>' .
         '</select>';
+
         $array_form['mappingTicket'] = array(
             array('label' => _("Argument"), 'html' => $mappingTicketArg_html),
             array('label' => _("Value"), 'html' => $mappingTicketValue_html),
@@ -324,8 +325,7 @@ class ServiceNowCSMProvider extends AbstractProvider
             foreach ($this->rule_data['clones']['mappingTicket'] as $value) {
                 $tpl->assign('string', $value['Value']);
                 $result_str = $tpl->fetch('eval.ihtml');
-
-                if ($result_str == '') {
+                if ($result_str == '-1') {
                     $result_str = null;
                 }
 
@@ -676,7 +676,7 @@ class ServiceNowCSMProvider extends AbstractProvider
 
         return $selected;
     }
-
+    
     /**
      * Getting the list of Contact Type from ServiceNow CSM
      *
